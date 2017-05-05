@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import com.blikoon.qrcodescanner.R;
 import com.blikoon.qrcodescanner.utils.ScreenUtils;
 
+
 /**
  * This view is overlaid on top of the camera preview. It adds the viewfinder rectangle and partial transparency outside
  * it, as well as the laser scanner animation and result points.
@@ -48,6 +49,7 @@ public final class QrCodeFinderView extends RelativeLayout {
         super(context, attrs, defStyleAttr);
         mContext = context;
         mPaint = new Paint();
+
 
         Resources resources = getResources();
         mMaskColor = resources.getColor(R.color.qr_code_finder_mask);
@@ -160,8 +162,18 @@ public final class QrCodeFinderView extends RelativeLayout {
         float fontTotalHeight = fontMetrics.bottom - fontMetrics.top;
         float offY = fontTotalHeight / 2 - fontMetrics.bottom;
         float newY = rect.bottom + margin + offY;
-        float left = (ScreenUtils.getScreenWidth(mContext) - mPaint.getTextSize() * text.length()) / 2;
-        canvas.drawText(text, left, newY, mPaint);
+
+
+
+        float screenScale = mContext.getResources().getDisplayMetrics().density;
+
+        float left = (ScreenUtils.getScreenWidth(mContext) - (mPaint.getTextSize()) * text.length()) / 2;
+        /*
+            correctedLeft is hack to force the text in the middle of the width of the screen
+            55 is an experimental value and it takes into account the scale of the screen.
+         */
+        float correctedLeft = left + (55 * screenScale);
+        canvas.drawText(text, correctedLeft, newY, mPaint);
     }
 
     private void drawLaser(Canvas canvas, Rect rect) {
