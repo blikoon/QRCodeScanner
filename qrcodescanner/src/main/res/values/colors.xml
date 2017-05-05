@@ -8,5 +8,5 @@
     <color name="qr_code_finder_mask">#80000000</color>
     <color name="qr_code_flash_light_text_color">#66FFFFFF</color>
     <color name="qr_code_finder_frame">#FFFFFFFF</color>
-    <color name="qr_code_finder_laser">#ef8394</color>
+    <color name="qr_code_finder_laser">#25f705</color>
 </resources>
