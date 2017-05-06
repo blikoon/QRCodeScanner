@@ -2,11 +2,9 @@ package com.blikoon.qrcodescanner;
 
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -70,9 +68,9 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
     private Executor mQrCodeExecutor;
     private Handler mHandler;
 
-    private BroadcastReceiver mBroadcastReceiver;
-
-    public static final String GOT_RESULT = "com.blikoon.qrcodescanner.gotresult";
+    private final String GOT_RESULT = "com.blikoon.qrcodescanner.got_qr_scan_relult";
+    private final String ERROR_DECODING_IMAGE = "com.blikoon.qrcodescanner.error_decoding_image";
+    private final String LOGTAG = "QRScannerQRCodeActivity";
     private Context mApplicationContext;
 
     private static Intent createIntent(Context context) {
@@ -162,28 +160,6 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
         initBeepSound();
         mVibrate = true;
 
-        //Register the broadcast receiver
-
-        mBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                String action = intent.getAction();
-                switch (action)
-                {
-                    case QrCodeActivity.GOT_RESULT:
-                        Log.d("GAKWAYA","Got a broadcast");
-                        //Show the main app window
-                        finish();
-                        break;
-                }
-
-            }
-        };
-        IntentFilter filter = new IntentFilter(QrCodeActivity.GOT_RESULT);
-        this.registerReceiver(mBroadcastReceiver, filter);
-
-        ///Register the broadcast receiver
     }
 
     @Override
@@ -194,8 +170,6 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
             mCaptureActivityHandler = null;
         }
         CameraManager.get().closeDriver();
-
-        this.unregisterReceiver(mBroadcastReceiver);
     }
 
     @Override
@@ -371,18 +345,13 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
                 }
             });
         } else {
-            Log.d("GAKWAYA","SHOWING THE RESULT1 :"+resultString);
+            //Got result from scanning QR Code with users camera
+            Log.d(LOGTAG,"Got scan result from user loaded image :"+resultString);
             Intent data = new Intent();
-            data.putExtra("com.blikoon.salama.got_qr_scan_relult",resultString);
+            data.putExtra(GOT_RESULT,resultString);
             setResult(Activity.RESULT_OK,data);
             finish();
-//            mDecodeManager.showResultDialog(this, resultString, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                    dialog.dismiss();
-//                    restartPreview();
-//                }
-//            });
+
         }
     }
 
@@ -413,12 +382,21 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
     private DecodeImageCallback mDecodeImageCallback = new DecodeImageCallback() {
         @Override
         public void decodeSucceed(Result result) {
-            mHandler.obtainMessage(MSG_DECODE_SUCCEED, result).sendToTarget();
+            //Got scan result from scaning an image loaded by the user
+            Log.d(LOGTAG,"Decoded the image successfully :"+ result.getText());
+            Intent data = new Intent();
+            data.putExtra(GOT_RESULT,result.getText());
+            setResult(Activity.RESULT_OK,data);
+            finish();
         }
 
         @Override
         public void decodeFail(int type, String reason) {
-            mHandler.sendEmptyMessage(MSG_DECODE_FAIL);
+            Log.d(LOGTAG,"Something went wrong decoding the image :"+ reason);
+            Intent data = new Intent();
+            data.putExtra(ERROR_DECODING_IMAGE,reason);
+            setResult(Activity.RESULT_CANCELED,data);
+            finish();
         }
     };
 
@@ -454,7 +432,6 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
 
         private void handleResult(String resultString) {
             QrCodeActivity imagePickerActivity = mWeakQrCodeActivity.get();
-            ///THIS IS FOR WHEN YOU LOAD IMAGES TO SCAN.IGNORE FOR NOW.
 
             mDecodeManager.showResultDialog(imagePickerActivity, resultString, new DialogInterface.OnClickListener() {
                 @Override
