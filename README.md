@@ -1,5 +1,5 @@
 # QRCodeScanner
-QR Scanning library based on zxing for android devices 15 and plus
+QR Scanning library based on zxing for android devices API 15 and plus
 
 # How to use
 * In your root gradle file do the following :
