@@ -1,6 +1,11 @@
 # QRCodeScanner
 QR Scanning library based on zxing for android devices API 15 and plus
 
+# Features
+ * Scan QR Code
+ * Load images containing QR Code and scan them
+ * Easy to use
+
 # How to use
 * In your root gradle file do the following :
 ```java
@@ -80,8 +85,11 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 ```
 * You're good to go!
 
+# Example app
+https://github.com/blikoon/QRCodeScanner/tree/master/app
+
 # Licence
-MIT
+GPLv3
 
 # Found a bug?
 Submit a github issue
