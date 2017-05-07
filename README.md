@@ -1,6 +1,8 @@
 # QRCodeScanner
 QR Scanning library based on zxing for android devices API 15 and plus
 
+![In action](https://github.com/blikoon/QRCodeScanner/blob/master/showOff.gif)
+
 # Features
  * Scan QR Code
  * Load images containing QR Code and scan them
