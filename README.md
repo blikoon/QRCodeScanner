@@ -1,5 +1,5 @@
 # QRCodeScanner
-QR Scanning library based on zxing for android devices API 15 and plus
+QR Scanning library based on zxing for android devices API 15 and up
 
 ![In action](https://github.com/blikoon/QRCodeScanner/blob/master/showOff.gif)
 
@@ -95,7 +95,7 @@ https://github.com/blikoon/QRCodeScanner/tree/master/app
 GPLv3
 
 # Found a bug?
-Submit a github issue
+Submit a [github issue](https://github.com/blikoon/QRCodeScanner/issues/new)
 
 # Need help?
-If you need one of our [Commercial Services](http://www.blikoon.com/services) then do [Contact us](http://www.blikoon.com/contact) otherwise file a github issue or comment on the particular commit relevant to your question and will try to respond in our time.
+If you need one of our [Commercial Services](http://www.blikoon.com/services) then do [Contact us](http://www.blikoon.com/contact) otherwise shoot us in the comments section of [This librarie's](http://www.blikoon.com/programming/how-to-scan-qr-code-in-android-apps) article.We won't respond to general usage questions posted as github issues.
