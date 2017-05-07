@@ -7,6 +7,7 @@ QR Scanning library based on zxing for android devices API 15 and plus
  * Scan QR Code
  * Load images containing QR Code and scan them
  * Easy to use
+ * Flash light
 
 # How to use
 * In your root gradle file do the following :
