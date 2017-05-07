@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -366,17 +367,29 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
                 break;
             case REQUEST_SYSTEM_PICTURE:
                 Uri uri = data.getData();
-                Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-                if (null != cursor) {
-                    cursor.moveToFirst();
-                    String imgPath = cursor.getString(1);
-                    cursor.close();
-                    if (null != mQrCodeExecutor && !TextUtils.isEmpty(imgPath)) {
-                        mQrCodeExecutor.execute(new DecodeImageThread(imgPath, mDecodeImageCallback));
-                    }
+                String imgPath = getPathFromUri(uri);
+                if (imgPath!=null && !TextUtils.isEmpty(imgPath) &&null != mQrCodeExecutor)
+                {
+                    mQrCodeExecutor.execute(new DecodeImageThread(imgPath, mDecodeImageCallback));
                 }
                 break;
         }
+    }
+
+    public String getPathFromUri(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        String document_id = cursor.getString(0);
+        document_id = document_id.substring(document_id.lastIndexOf(":") + 1);
+        cursor.close();
+
+        cursor = getContentResolver().query(
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null, MediaStore.Images.Media._ID + " = ? ", new String[]{document_id}, null);
+        cursor.moveToFirst();
+        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        cursor.close();
+        return path;
     }
 
     private DecodeImageCallback mDecodeImageCallback = new DecodeImageCallback() {
