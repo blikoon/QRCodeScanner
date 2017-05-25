@@ -98,4 +98,4 @@ GPLv3
 Submit a [github issue](https://github.com/blikoon/QRCodeScanner/issues/new)
 
 # Need help?
-If you need one of our [Commercial Services](http://www.blikoon.com/services) then do [Contact us](http://www.blikoon.com/contact) otherwise shoot us in the comments section of [This librarie's](http://www.blikoon.com/programming/how-to-scan-qr-code-in-android-apps) article.We won't respond to general usage questions posted as github issues.
+If you need one of our [Commercial Services](http://www.blikoontech.com/services) then do [Contact us](http://www.blikoontech.com/contact) otherwise shoot us in the comments section of [This librarie's](http://www.blikoontech.com/programming/how-to-scan-qr-code-in-android-apps) article.We won't respond to general usage questions posted as github issues.
