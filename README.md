@@ -91,6 +91,9 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 # Example app
 https://github.com/blikoon/QRCodeScanner/tree/master/app
 
+# Video Tutorial
+https://www.youtube.com/watch?v=R9JxDpKpkAk
+
 # Licence
 GPLv3
 
