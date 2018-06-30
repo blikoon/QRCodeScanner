@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/QRCodeScannerLibrary.iml" filepath="$PROJECT_DIR$/QRCodeScannerLibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/QRCodeScanner.iml" filepath="$PROJECT_DIR$/QRCodeScanner.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/qrcodescanner/qrcodescanner.iml" filepath="$PROJECT_DIR$/qrcodescanner/qrcodescanner.iml" />
     </modules>

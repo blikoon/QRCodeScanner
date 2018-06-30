@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 
 import com.blikoon.qrcodescanner.R;
 
@@ -13,7 +14,7 @@ public class DecodeManager {
 
     public void showPermissionDeniedDialog(Context context) {
         Log.e("DecodeManager", "Permissions not granted");
-        
+
         new AlertDialog.Builder(context).setTitle(R.string.qr_code_notification)
                 .setMessage(R.string.qr_code_camera_not_open)
                 .setPositiveButton(R.string.qr_code_positive_button_know, new DialogInterface.OnClickListener() {

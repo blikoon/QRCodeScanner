@@ -1,19 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.blikoon.qrcodescannerlibrary.MainActivity">
+
+    <CheckBox
+        android:id="@+id/checkbox_show_flash_light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Show flash light" />
+
+    <CheckBox
+        android:id="@+id/checkbox_show_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Show header" />
+
+    <CheckBox
+        android:id="@+id/checkbox_show_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Show text" />
+
+    <CheckBox
+        android:id="@+id/checkbox_show_laser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Show laser" />
+
+    <CheckBox
+        android:id="@+id/checkbox_show_corners"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Show corners" />
+
+    <CheckBox
+        android:id="@+id/checkbox_vibrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Vibrate" />
 
     <Button
         android:id="@+id/button_start_scan"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:text="Click to scan"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Click to scan" />
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

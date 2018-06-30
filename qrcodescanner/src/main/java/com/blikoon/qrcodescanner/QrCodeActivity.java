@@ -25,10 +25,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.Result;
 import com.blikoon.qrcodescanner.camera.CameraManager;
 import com.blikoon.qrcodescanner.decode.CaptureActivityHandler;
 import com.blikoon.qrcodescanner.decode.DecodeImageCallback;
@@ -36,6 +36,7 @@ import com.blikoon.qrcodescanner.decode.DecodeImageThread;
 import com.blikoon.qrcodescanner.decode.DecodeManager;
 import com.blikoon.qrcodescanner.decode.InactivityTimer;
 import com.blikoon.qrcodescanner.view.QrCodeFinderView;
+import com.google.zxing.Result;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -45,10 +46,30 @@ import java.util.concurrent.Executors;
 
 public class QrCodeActivity extends Activity implements Callback, OnClickListener {
 
-    private static final int REQUEST_SYSTEM_PICTURE = 0;
-    private static final int REQUEST_PICTURE = 1;
     public static final int MSG_DECODE_SUCCEED = 1;
     public static final int MSG_DECODE_FAIL = 2;
+    public static final String SHOW_FLASH_LIGHT = "showflashlight";
+    public static final String SHOW_HEADER = "showheader";
+    public static final String SHOW_TEXT = "showtext";
+    public static final String SHOW_LASER = "showlaser";
+    public static final String SHOW_CORNERS = "showcorners";
+    public static final String VIBRATE = "vibrate";
+    private static final int REQUEST_SYSTEM_PICTURE = 0;
+    private static final int REQUEST_PICTURE = 1;
+    private static final float BEEP_VOLUME = 0.10f;
+    private static final long VIBRATE_DURATION = 200L;
+    private final DecodeManager mDecodeManager = new DecodeManager();
+    private final String GOT_RESULT = "com.blikoon.qrcodescanner.got_qr_scan_relult";
+    private final String ERROR_DECODING_IMAGE = "com.blikoon.qrcodescanner.error_decoding_image";
+    private final String LOGTAG = "QRScannerQRCodeActivity";
+    /**
+     * When the beep has finished playing, rewind to queue up another one.
+     */
+    private final MediaPlayer.OnCompletionListener mBeepListener = new MediaPlayer.OnCompletionListener() {
+        public void onCompletion(MediaPlayer mediaPlayer) {
+            mediaPlayer.seekTo(0);
+        }
+    };
     private CaptureActivityHandler mCaptureActivityHandler;
     private boolean mHasSurface;
     private boolean mPermissionOk;
@@ -56,10 +77,7 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
     private QrCodeFinderView mQrCodeFinderView;
     private SurfaceView mSurfaceView;
     private View mLlFlashLight;
-    private final DecodeManager mDecodeManager = new DecodeManager();
-
-    private static final float BEEP_VOLUME = 0.10f;
-    private static final long VIBRATE_DURATION = 200L;
+    private RelativeLayout mRlHeader;
     private MediaPlayer mMediaPlayer;
     private boolean mPlayBeep;
     private boolean mVibrate;
@@ -68,22 +86,36 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
     private TextView mTvFlashLightText;
     private Executor mQrCodeExecutor;
     private Handler mHandler;
-
-    private final String GOT_RESULT = "com.blikoon.qrcodescanner.got_qr_scan_relult";
-    private final String ERROR_DECODING_IMAGE = "com.blikoon.qrcodescanner.error_decoding_image";
-    private final String LOGTAG = "QRScannerQRCodeActivity";
     private Context mApplicationContext;
+    private DecodeImageCallback mDecodeImageCallback = new DecodeImageCallback() {
+        @Override
+        public void decodeSucceed(Result result) {
+            //Got scan result from scaning an image loaded by the user
+            Log.d(LOGTAG, "Decoded the image successfully :" + result.getText());
+            Intent data = new Intent();
+            data.putExtra(GOT_RESULT, result.getText());
+            setResult(Activity.RESULT_OK, data);
+            finish();
+        }
+
+        @Override
+        public void decodeFail(int type, String reason) {
+            Log.d(LOGTAG, "Something went wrong decoding the image :" + reason);
+            Intent data = new Intent();
+            data.putExtra(ERROR_DECODING_IMAGE, reason);
+            setResult(Activity.RESULT_CANCELED, data);
+            finish();
+        }
+    };
 
     private static Intent createIntent(Context context) {
-        Intent i = new Intent(context, QrCodeActivity.class);
-        return i;
+        return new Intent(context, QrCodeActivity.class);
     }
 
     public static void launch(Context context) {
         Intent i = createIntent(context);
         context.startActivity(i);
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,7 +125,6 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
         initView();
         initData();
         mApplicationContext = getApplicationContext();
-
     }
 
     private void checkPermission() {
@@ -113,12 +144,13 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
     }
 
     private void initView() {
-        TextView tvPic = (TextView) findViewById(R.id.qr_code_header_black_pic);
-        mIvFlashLight = (ImageView) findViewById(R.id.qr_code_iv_flash_light);
-        mTvFlashLightText = (TextView) findViewById(R.id.qr_code_tv_flash_light);
-        mQrCodeFinderView = (QrCodeFinderView) findViewById(R.id.qr_code_view_finder);
-        mSurfaceView = (SurfaceView) findViewById(R.id.qr_code_preview_view);
+        TextView tvPic = findViewById(R.id.qr_code_header_black_pic);
+        mIvFlashLight = findViewById(R.id.qr_code_iv_flash_light);
+        mTvFlashLightText = findViewById(R.id.qr_code_tv_flash_light);
+        mQrCodeFinderView = findViewById(R.id.qr_code_view_finder);
+        mSurfaceView = findViewById(R.id.qr_code_preview_view);
         mLlFlashLight = findViewById(R.id.qr_code_ll_flash_light);
+        mRlHeader = findViewById(R.id.qr_code_header_bar);
         mHasSurface = false;
         mIvFlashLight.setOnClickListener(this);
         tvPic.setOnClickListener(this);
@@ -181,7 +213,6 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
         super.onDestroy();
     }
 
-
     public void handleDecode(Result result) {
         mInactivityTimer.onActivity();
         playBeepSoundAndVibrate();
@@ -214,7 +245,13 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
         }
         mQrCodeFinderView.setVisibility(View.VISIBLE);
         mSurfaceView.setVisibility(View.VISIBLE);
-        mLlFlashLight.setVisibility(View.VISIBLE);
+        Intent i = getIntent();
+        if (i.getBooleanExtra(SHOW_FLASH_LIGHT, true)) mLlFlashLight.setVisibility(View.VISIBLE);
+        if (!i.getBooleanExtra(SHOW_HEADER, true)) mRlHeader.setVisibility(View.GONE);
+        mVibrate = i.getBooleanExtra(VIBRATE, true);
+        mQrCodeFinderView.showText = i.getBooleanExtra(SHOW_TEXT, true);
+        mQrCodeFinderView.showLaser = i.getBooleanExtra(SHOW_LASER, true);
+        mQrCodeFinderView.showCorners = i.getBooleanExtra(SHOW_CORNERS, true);
         findViewById(R.id.qr_code_view_background).setVisibility(View.GONE);
         if (mCaptureActivityHandler == null) {
             mCaptureActivityHandler = new CaptureActivityHandler(this);
@@ -285,32 +322,21 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
         }
     }
 
-    /**
-     * When the beep has finished playing, rewind to queue up another one.
-     */
-    private final MediaPlayer.OnCompletionListener mBeepListener = new MediaPlayer.OnCompletionListener() {
-        public void onCompletion(MediaPlayer mediaPlayer) {
-            mediaPlayer.seekTo(0);
-        }
-    };
-
     @Override
     public void onClick(View v) {
-        if(v.getId() == R.id.qr_code_iv_flash_light)
-        {
+        if (v.getId() == R.id.qr_code_iv_flash_light) {
             if (mNeedFlashLightOpen) {
-                    turnFlashlightOn();
-                } else {
-                    turnFlashLightOff();
-                }
+                turnFlashlightOn();
+            } else {
+                turnFlashLightOff();
+            }
 
-        }else if(v.getId() == R.id.qr_code_header_black_pic)
-        {
+        } else if (v.getId() == R.id.qr_code_header_black_pic) {
             if (!hasCameraPermission()) {
-                    mDecodeManager.showPermissionDeniedDialog(this);
-                } else {
-                    openSystemAlbum();
-                }
+                mDecodeManager.showPermissionDeniedDialog(this);
+            } else {
+                openSystemAlbum();
+            }
 
         }
 
@@ -347,10 +373,10 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
             });
         } else {
             //Got result from scanning QR Code with users camera
-            Log.d(LOGTAG,"Got scan result from user loaded image :"+resultString);
+            Log.d(LOGTAG, "Got scan result from user loaded image :" + resultString);
             Intent data = new Intent();
-            data.putExtra(GOT_RESULT,resultString);
-            setResult(Activity.RESULT_OK,data);
+            data.putExtra(GOT_RESULT, resultString);
+            setResult(Activity.RESULT_OK, data);
             finish();
 
         }
@@ -368,8 +394,7 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
             case REQUEST_SYSTEM_PICTURE:
                 Uri uri = data.getData();
                 String imgPath = getPathFromUri(uri);
-                if (imgPath!=null && !TextUtils.isEmpty(imgPath) &&null != mQrCodeExecutor)
-                {
+                if (imgPath != null && !TextUtils.isEmpty(imgPath) && null != mQrCodeExecutor) {
                     mQrCodeExecutor.execute(new DecodeImageThread(imgPath, mDecodeImageCallback));
                 }
                 break;
@@ -392,32 +417,11 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
         return path;
     }
 
-    private DecodeImageCallback mDecodeImageCallback = new DecodeImageCallback() {
-        @Override
-        public void decodeSucceed(Result result) {
-            //Got scan result from scaning an image loaded by the user
-            Log.d(LOGTAG,"Decoded the image successfully :"+ result.getText());
-            Intent data = new Intent();
-            data.putExtra(GOT_RESULT,result.getText());
-            setResult(Activity.RESULT_OK,data);
-            finish();
-        }
-
-        @Override
-        public void decodeFail(int type, String reason) {
-            Log.d(LOGTAG,"Something went wrong decoding the image :"+ reason);
-            Intent data = new Intent();
-            data.putExtra(ERROR_DECODING_IMAGE,reason);
-            setResult(Activity.RESULT_CANCELED,data);
-            finish();
-        }
-    };
-
     private static class WeakHandler extends Handler {
         private WeakReference<QrCodeActivity> mWeakQrCodeActivity;
         private DecodeManager mDecodeManager = new DecodeManager();
 
-        public WeakHandler(QrCodeActivity imagePickerActivity) {
+        WeakHandler(QrCodeActivity imagePickerActivity) {
             super();
             this.mWeakQrCodeActivity = new WeakReference<>(imagePickerActivity);
         }

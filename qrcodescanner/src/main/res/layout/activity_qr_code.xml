@@ -15,7 +15,7 @@
             android:layout_centerInParent="true"
             android:text="@string/title_activity_scan_qr_code"
             android:textColor="@color/qr_code_white"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/qr_code_header_black_pic"
@@ -27,7 +27,7 @@
             android:padding="10dp"
             android:text="@string/qr_code_select_picture"
             android:textColor="@android:color/white"
-            android:textSize="15sp"/>
+            android:textSize="15sp" />
 
     </RelativeLayout>
 
@@ -37,7 +37,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/qr_code_header_bar"
         android:layout_gravity="center"
-        android:visibility="visible"/>
+        android:visibility="visible" />
 
     <com.blikoon.qrcodescanner.view.QrCodeFinderView
         android:id="@+id/qr_code_view_finder"
@@ -45,7 +45,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/qr_code_header_bar"
         android:layout_centerInParent="true"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/qr_code_ll_flash_light"
@@ -55,8 +55,7 @@
         android:background="@color/qr_code_flashlight_bg"
         android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
-        >
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/qr_code_iv_flash_light"
@@ -64,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="10dp"
-            android:background="@drawable/flashlight_turn_on"/>
+            android:background="@drawable/flashlight_turn_on" />
 
         <TextView
             android:id="@+id/qr_code_tv_flash_light"
@@ -74,7 +73,7 @@
             android:layout_marginBottom="12dp"
             android:text="@string/qr_code_open_flash_light"
             android:textColor="@color/qr_code_flash_light_text_color"
-            android:textSize="@dimen/text_size_13sp"/>
+            android:textSize="@dimen/text_size_13sp" />
     </LinearLayout>
 
     <View
@@ -83,6 +82,6 @@
         android:layout_height="match_parent"
         android:layout_below="@id/qr_code_header_bar"
         android:background="@android:color/black"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </RelativeLayout>

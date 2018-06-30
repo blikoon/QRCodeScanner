@@ -21,10 +21,12 @@ import com.blikoon.qrcodescanner.utils.ScreenUtils;
  */
 public final class QrCodeFinderView extends RelativeLayout {
 
-    private static final int[] SCANNER_ALPHA = { 0, 64, 128, 192, 255, 192, 128, 64 };
+    private static final int[] SCANNER_ALPHA = {0, 64, 128, 192, 255, 192, 128, 64};
     private static final long ANIMATION_DELAY = 100L;
     private static final int OPAQUE = 0xFF;
-
+    public boolean showText = true;
+    public boolean showLaser = true;
+    public boolean showCorners = true;
     private Context mContext;
     private Paint mPaint;
     private int mScannerAlpha;
@@ -110,18 +112,19 @@ public final class QrCodeFinderView extends RelativeLayout {
 
 
     private void drawFocusRect(Canvas canvas, Rect rect) {
+        int angleLength = mAngleLength;
+        if (!showCorners) {
+            angleLength = 0;
+        }
         mPaint.setColor(mFrameColor);
         //Up
-        canvas.drawRect(rect.left + mAngleLength, rect.top, rect.right - mAngleLength, rect.top + mFocusThick, mPaint);
+        canvas.drawRect(rect.left + angleLength, rect.top, rect.right - angleLength, rect.top + mFocusThick, mPaint);
         //Left
-        canvas.drawRect(rect.left, rect.top + mAngleLength, rect.left + mFocusThick, rect.bottom - mAngleLength,
-                mPaint);
+        canvas.drawRect(rect.left, rect.top + angleLength, rect.left + mFocusThick, rect.bottom - angleLength, mPaint);
         //Right
-        canvas.drawRect(rect.right - mFocusThick, rect.top + mAngleLength, rect.right, rect.bottom - mAngleLength,
-                mPaint);
+        canvas.drawRect(rect.right - mFocusThick, rect.top + angleLength, rect.right, rect.bottom - angleLength, mPaint);
         //Down
-        canvas.drawRect(rect.left + mAngleLength, rect.bottom - mFocusThick, rect.right - mAngleLength, rect.bottom,
-                mPaint);
+        canvas.drawRect(rect.left + angleLength, rect.bottom - mFocusThick, rect.right - angleLength, rect.bottom, mPaint);
     }
 
     /**
@@ -131,57 +134,61 @@ public final class QrCodeFinderView extends RelativeLayout {
      * @param rect
      */
     private void drawAngle(Canvas canvas, Rect rect) {
-        mPaint.setColor(mLaserColor);
-        mPaint.setAlpha(OPAQUE);
-        mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setStrokeWidth(mAngleThick);
-        int left = rect.left;
-        int top = rect.top;
-        int right = rect.right;
-        int bottom = rect.bottom;
-        // Top left angle
-        canvas.drawRect(left, top, left + mAngleLength, top + mAngleThick, mPaint);
-        canvas.drawRect(left, top, left + mAngleThick, top + mAngleLength, mPaint);
-        // Top right angle
-        canvas.drawRect(right - mAngleLength, top, right, top + mAngleThick, mPaint);
-        canvas.drawRect(right - mAngleThick, top, right, top + mAngleLength, mPaint);
-        // bottom left angle
-        canvas.drawRect(left, bottom - mAngleLength, left + mAngleThick, bottom, mPaint);
-        canvas.drawRect(left, bottom - mAngleThick, left + mAngleLength, bottom, mPaint);
-        // bottom right angle
-        canvas.drawRect(right - mAngleLength, bottom - mAngleThick, right, bottom, mPaint);
-        canvas.drawRect(right - mAngleThick, bottom - mAngleLength, right, bottom, mPaint);
+        if (showCorners) {
+            mPaint.setColor(mLaserColor);
+            mPaint.setAlpha(OPAQUE);
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setStrokeWidth(mAngleThick);
+            int left = rect.left;
+            int top = rect.top;
+            int right = rect.right;
+            int bottom = rect.bottom;
+            // Top left angle
+            canvas.drawRect(left, top, left + mAngleLength, top + mAngleThick, mPaint);
+            canvas.drawRect(left, top, left + mAngleThick, top + mAngleLength, mPaint);
+            // Top right angle
+            canvas.drawRect(right - mAngleLength, top, right, top + mAngleThick, mPaint);
+            canvas.drawRect(right - mAngleThick, top, right, top + mAngleLength, mPaint);
+            // bottom left angle
+            canvas.drawRect(left, bottom - mAngleLength, left + mAngleThick, bottom, mPaint);
+            canvas.drawRect(left, bottom - mAngleThick, left + mAngleLength, bottom, mPaint);
+            // bottom right angle
+            canvas.drawRect(right - mAngleLength, bottom - mAngleThick, right, bottom, mPaint);
+            canvas.drawRect(right - mAngleThick, bottom - mAngleLength, right, bottom, mPaint);
+        }
     }
 
     private void drawText(Canvas canvas, Rect rect) {
-        int margin = 40;
-        mPaint.setColor(mTextColor);
-        mPaint.setTextSize(getResources().getDimension(R.dimen.text_size_13sp));
-        String text = getResources().getString(R.string.qr_code_auto_scan_notification);
-        Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
-        float fontTotalHeight = fontMetrics.bottom - fontMetrics.top;
-        float offY = fontTotalHeight / 2 - fontMetrics.bottom;
-        float newY = rect.bottom + margin + offY;
+        if (showText) {
+            int margin = 40;
+            mPaint.setColor(mTextColor);
+            mPaint.setTextSize(getResources().getDimension(R.dimen.text_size_13sp));
+            String text = getResources().getString(R.string.qr_code_auto_scan_notification);
+            Paint.FontMetrics fontMetrics = mPaint.getFontMetrics();
+            float fontTotalHeight = fontMetrics.bottom - fontMetrics.top;
+            float offY = fontTotalHeight / 2 - fontMetrics.bottom;
+            float newY = rect.bottom + margin + offY;
 
 
+            float screenScale = mContext.getResources().getDisplayMetrics().density;
 
-        float screenScale = mContext.getResources().getDisplayMetrics().density;
-
-        float left = (ScreenUtils.getScreenWidth(mContext) - (mPaint.getTextSize()) * text.length()) / 2;
-        /*
-            correctedLeft is hack to force the text in the middle of the width of the screen
-            55 is an experimental value and it takes into account the scale of the screen.
-         */
-        float correctedLeft = left + (55 * screenScale);
-        canvas.drawText(text, correctedLeft, newY, mPaint);
+            float left = (ScreenUtils.getScreenWidth(mContext) - (mPaint.getTextSize()) * text.length()) / 2;
+            /*
+                correctedLeft is hack to force the text in the middle of the width of the screen
+                55 is an experimental value and it takes into account the scale of the screen.
+             */
+            float correctedLeft = left + (55 * screenScale);
+            canvas.drawText(text, correctedLeft, newY, mPaint);
+        }
     }
 
     private void drawLaser(Canvas canvas, Rect rect) {
-        mPaint.setColor(mLaserColor);
-        mPaint.setAlpha(SCANNER_ALPHA[mScannerAlpha]);
-        mScannerAlpha = (mScannerAlpha + 1) % SCANNER_ALPHA.length;
-        int middle = rect.height() / 2 + rect.top;
-        canvas.drawRect(rect.left + 2, middle - 1, rect.right - 1, middle + 2, mPaint);
-
+        if (showLaser) {
+            mPaint.setColor(mLaserColor);
+            mPaint.setAlpha(SCANNER_ALPHA[mScannerAlpha]);
+            mScannerAlpha = (mScannerAlpha + 1) % SCANNER_ALPHA.length;
+            int middle = rect.height() / 2 + rect.top;
+            canvas.drawRect(rect.left + 2, middle - 1, rect.right - 1, middle + 2, mPaint);
+        }
     }
 }
