@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox showLaser;
     private CheckBox showCorners;
     private CheckBox vibrate;
+    private CheckBox allowBackPress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,15 +34,17 @@ public class MainActivity extends AppCompatActivity {
         showLaser = (CheckBox) findViewById(R.id.checkbox_show_laser);
         showCorners = (CheckBox) findViewById(R.id.checkbox_show_corners);
         vibrate = (CheckBox) findViewById(R.id.checkbox_vibrate);
+        allowBackPress = (CheckBox) findViewById(R.id.checkbox_allow_back_press);
         button.setOnClickListener(v -> {
             //Start the qr scan activity
-            Intent i = new Intent(MainActivity.this, QrCodeActivity.class);
-            i.putExtra(QrCodeActivity.SHOW_FLASH_LIGHT, showFlashLight.isChecked());
-            i.putExtra(QrCodeActivity.SHOW_HEADER, showHeader.isChecked());
-            i.putExtra(QrCodeActivity.SHOW_TEXT, showText.isChecked());
-            i.putExtra(QrCodeActivity.SHOW_LASER, showLaser.isChecked());
-            i.putExtra(QrCodeActivity.SHOW_CORNERS, showCorners.isChecked());
-            i.putExtra(QrCodeActivity.VIBRATE, vibrate.isChecked());
+            Intent i = new Intent(MainActivity.this, QrCodeActivity.class)
+                    .putExtra(QrCodeActivity.SHOW_FLASH_LIGHT, showFlashLight.isChecked())
+                    .putExtra(QrCodeActivity.SHOW_HEADER, showHeader.isChecked())
+                    .putExtra(QrCodeActivity.SHOW_TEXT, showText.isChecked())
+                    .putExtra(QrCodeActivity.SHOW_LASER, showLaser.isChecked())
+                    .putExtra(QrCodeActivity.SHOW_CORNERS, showCorners.isChecked())
+                    .putExtra(QrCodeActivity.VIBRATE, vibrate.isChecked())
+                    .putExtra(QrCodeActivity.ALLOW_BACK_PRESS, allowBackPress.isChecked());
             startActivityForResult(i, REQUEST_CODE_QR_SCAN);
         });
 
@@ -50,13 +53,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (resultCode != Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_CANCELED) {
+            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+            alertDialog.setTitle("Scan canceled");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", (dialog, which) -> dialog.dismiss());
+            alertDialog.show();
+        } else if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_CODE_QR_SCAN) {
+                //Getting the passed result
+                String result = data.getStringExtra(QrCodeActivity.GOT_RESULT);
+                Log.d(LOGTAG, "Have scan result in your app activity :" + result);
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                alertDialog.setTitle("Scan result");
+                alertDialog.setMessage(result);
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", (dialog, which) -> dialog.dismiss());
+                alertDialog.show();
+            }
+        } else {
             Log.d(LOGTAG, "COULD NOT GET A GOOD RESULT.");
-            if (data == null)
-                return;
             //Getting the passed result
-            String result = data.getStringExtra("com.blikoon.qrcodescanner.error_decoding_image");
+            String result = data.getStringExtra(QrCodeActivity.ERROR_DECODING_IMAGE);
             if (result != null) {
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                 alertDialog.setTitle("Scan Error");
@@ -64,21 +80,6 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", (dialog, which) -> dialog.dismiss());
                 alertDialog.show();
             }
-            return;
-
-        }
-        if (requestCode == REQUEST_CODE_QR_SCAN) {
-            if (data == null)
-                return;
-            //Getting the passed result
-            String result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult");
-            Log.d(LOGTAG, "Have scan result in your app activity :" + result);
-            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-            alertDialog.setTitle("Scan result");
-            alertDialog.setMessage(result);
-            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", (dialog, which) -> dialog.dismiss());
-            alertDialog.show();
-
         }
     }
 }

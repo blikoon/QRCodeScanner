@@ -48,6 +48,13 @@
         android:checked="true"
         android:text="Vibrate" />
 
+    <CheckBox
+        android:id="@+id/checkbox_allow_back_press"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Allow back press" />
+
     <Button
         android:id="@+id/button_start_scan"
         android:layout_width="wrap_content"
