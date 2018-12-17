@@ -1,6 +1,7 @@
 package com.blikoon.qrcodescanner;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,11 +12,15 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -28,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.Result;
 import com.blikoon.qrcodescanner.camera.CameraManager;
 import com.blikoon.qrcodescanner.decode.CaptureActivityHandler;
 import com.blikoon.qrcodescanner.decode.DecodeImageCallback;
@@ -36,6 +40,7 @@ import com.blikoon.qrcodescanner.decode.DecodeImageThread;
 import com.blikoon.qrcodescanner.decode.DecodeManager;
 import com.blikoon.qrcodescanner.decode.InactivityTimer;
 import com.blikoon.qrcodescanner.view.QrCodeFinderView;
+import com.google.zxing.Result;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -49,6 +54,7 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
     private static final int REQUEST_PICTURE = 1;
     public static final int MSG_DECODE_SUCCEED = 1;
     public static final int MSG_DECODE_FAIL = 2;
+    private static final int PERMISSIONS_EXTERNAL_STORAGE = 102;
     private CaptureActivityHandler mCaptureActivityHandler;
     private boolean mHasSurface;
     private boolean mPermissionOk;
@@ -134,6 +140,16 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
     private boolean hasCameraPermission() {
         PackageManager pm = getPackageManager();
         return PackageManager.PERMISSION_GRANTED == pm.checkPermission("android.permission.CAMERA", getPackageName());
+    }
+
+    private boolean hasExternalStoragePermission() {
+        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            PackageManager pm = getPackageManager();
+            return PackageManager.PERMISSION_GRANTED == pm.checkPermission("android.permission.READ_EXTERNAL_STORAGE", getPackageName());    
+        } else {
+            return true;
+        }
+        
     }
 
     @Override
@@ -304,16 +320,16 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
                     turnFlashLightOff();
                 }
 
-        }else if(v.getId() == R.id.qr_code_header_black_pic)
-        {
-            if (!hasCameraPermission()) {
-                    mDecodeManager.showPermissionDeniedDialog(this);
-                } else {
-                    openSystemAlbum();
-                }
-
+        } else if(v.getId() == R.id.qr_code_header_black_pic) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                openSystemAlbum();
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]
+                                                  {Manifest.permission.READ_EXTERNAL_STORAGE},
+                                                  PERMISSIONS_EXTERNAL_STORAGE);
+            }
         }
-
     }
 
     private void openSystemAlbum() {
@@ -454,5 +470,26 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
             });
         }
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_EXTERNAL_STORAGE: {
+                // If request is cancelled, result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                    openSystemAlbum();
+                } else {
+                    // permission denied
+                    return;
+                }
+                return;
+            }
+
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 }
