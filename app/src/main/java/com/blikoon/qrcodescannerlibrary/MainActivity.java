@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             if(data==null)
                 return;
             //Getting the passed result
-            String result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_relult");
+            String result = data.getStringExtra("com.blikoon.qrcodescanner.got_qr_scan_result");
             Log.d(LOGTAG,"Have scan result in your app activity :"+ result);
             AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
             alertDialog.setTitle("Scan result");

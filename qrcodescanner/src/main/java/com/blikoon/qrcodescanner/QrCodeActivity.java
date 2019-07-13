@@ -69,7 +69,7 @@ public class QrCodeActivity extends Activity implements Callback, OnClickListene
     private Executor mQrCodeExecutor;
     private Handler mHandler;
 
-    private final String GOT_RESULT = "com.blikoon.qrcodescanner.got_qr_scan_relult";
+    private final String GOT_RESULT = "com.blikoon.qrcodescanner.got_qr_scan_result";
     private final String ERROR_DECODING_IMAGE = "com.blikoon.qrcodescanner.error_decoding_image";
     private final String LOGTAG = "QRScannerQRCodeActivity";
     private Context mApplicationContext;
